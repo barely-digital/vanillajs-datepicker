@@ -191,20 +191,28 @@ export default class DaysView extends View {
         this.today_day = today.getDay();
 
         this.today_date = this.formatDateInstanceToDateString(today);
-        this.current_date = this.formatDateInstanceToDateString(new Date(current));
     }
 
     excludeDateBeforeRender(current, day) {
-        console.log(this.currentWeekendEnabled)
         if (this.daysOfWeekDisabled.includes(day) && this.currentWeekendEnabled) {
             // case 1: if current day is friday, and date is today, we enable it
             // case 2: if current day is saturday, and date is today, we enable it
             // case 2: if current day is sunday, and date is today, we enable it
-            return !((
-                (this.today_day === 5)
-                || this.today_day === 6
-                || this.today_day === 0
-            ) && this.today_date === this.current_date);
+            let current_date = this.formatDateInstanceToDateString(new Date(current));
+
+            if (
+                (
+                    this.today_day === 5
+                    || this.today_day === 6
+                    || this.today_day === 0
+                )
+                && this.today_date === current_date
+                && this.currentWeekendEnabled
+            ) {
+                return false;
+            }
+
+            return true;
         }
 
         // default, if daysOfweek is false, we may add some extra stuff later
