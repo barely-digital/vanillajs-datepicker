@@ -27,6 +27,10 @@ export default class DaysView extends View {
     setOptions(options) {
         let updateDOW;
 
+        if ('currentWeekendEnabled' in options) {
+            this.currentWeekendEnabled = options.currentWeekendEnabled ?? false;
+        }
+
         if ('minDate' in options) {
             this.minDate = options.minDate;
         }
@@ -152,6 +156,9 @@ export default class DaysView extends View {
                 }
             });
         }
+
+        this.setupDateVariables();
+
         Array.from(this.grid.children).forEach((el, index) => {
             const current = addDays(this.start, index);
             const dateObj = new Date(current);
@@ -179,46 +186,24 @@ export default class DaysView extends View {
         });
     }
 
-    setupDateVariables(){
-
+    setupDateVariables() {
         let today = new Date();
         this.today_day = today.getDay();
-        let today_clone = new Date();
-        let tomorrow = new Date(today_clone.setDate(today_clone.getDate() + 1));
-        let day_after_tomorrow = new Date(today_clone.setDate(today_clone.getDate() + 1));
 
         this.today_date = this.formatDateInstanceToDateString(today);
-        this.tomorrow_date = this.formatDateInstanceToDateString(tomorrow);
-        this.day_after_tomorrow_date = this.formatDateInstanceToDateString(day_after_tomorrow);
         this.current_date = this.formatDateInstanceToDateString(new Date(current));
     }
 
     excludeDateBeforeRender(current, day) {
-        if (this.daysOfWeekDisabled.includes(day)) {
+        if (this.daysOfWeekDisabled.includes(day) && this.currentWeekendEnabled) {
             // case 1: if current day is friday, and date is today, we enable it
             // case 2: if current day is saturday, and date is today, we enable it
             // case 2: if current day is sunday, and date is today, we enable it
-            if(
-                (
-                    (this.today_day === 5)
-                    || this.today_day === 6
-                    || this.today_day === 0
-                ) && this.today_date === this.current_date){
-                return false;
-            }
-
-            // case 1: if current day is friday after 12, it enables tomorrow saturday date too
-            // case 2: if current day is saturday, it enables tomorrow sunday date too
-            if(((this.today_day === 5 && today.getHours() >= 12) || this.today_day === 6) && this.tomorrow_date === this.current_date){
-                return false;
-            }
-
-            // case: if current day is friday after 12, enable sunday date,
-            if((this.today_day === 5 && today.getHours() >= 12) && this.day_after_tomorrow_date === this.current_date){
-                return false;
-            }
-
-            return true;
+            return !((
+                (this.today_day === 5)
+                || this.today_day === 6
+                || this.today_day === 0
+            ) && this.today_date === this.current_date);
         }
 
         // default, if daysOfweek is false, we may add some extra stuff later
