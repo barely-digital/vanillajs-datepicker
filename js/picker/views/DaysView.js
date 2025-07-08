@@ -195,6 +195,7 @@ export default class DaysView extends View {
     }
 
     excludeDateBeforeRender(current, day) {
+        console.log(this.currentWeekendEnabled)
         if (this.daysOfWeekDisabled.includes(day) && this.currentWeekendEnabled) {
             // case 1: if current day is friday, and date is today, we enable it
             // case 2: if current day is saturday, and date is today, we enable it
